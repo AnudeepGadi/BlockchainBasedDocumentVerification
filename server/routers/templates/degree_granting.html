@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Degree Granting University</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        form {
+            background-color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .subject {
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        #add_subject {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px;
+        }
+
+        #add_subject:hover {
+            background-color: #2980b9;
+        }
+
+        input[type="submit"] {
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <h1>Student Details Form</h1>
+    <form id="student-form" method="post">
+        <label for="name">Name:</label>
+        <input type="text" name="name" required><br>
+        <label for="student_id">Student ID:</label>
+        <input type="text" name="student_id" required><br>
+
+        <h2>Subjects</h2>
+        <div id="subjects">
+            <div class="subject">
+                <label for="subjects[0].name">Subject Name:</label>
+                <input type="text" name="subjects[0].name" required>
+                <label for="subjects[0].grade">Grade:</label>
+                <input type="text" name="subjects[0].grade" required>
+            </div>
+        </div>
+        <button type="button" id="add_subject">Add Subject</button>
+        <br>
+        <label for="cgpa">CGPA:</label>
+        <input type="number" step="0.01" name="cgpa" required><br>
+        <input type="submit" value="Submit">
+        <!-- Hidden fields to store dynamic subjects -->
+        <input type="hidden" name="subject_count" value="1" id="subject-count">
+    </form>
+
+    <script>
+        let subjectCount = 1;
+        document.getElementById('add_subject').addEventListener('click', () => {
+            const subjectDiv = document.createElement('div');
+            subjectDiv.classList.add('subject');
+            subjectDiv.innerHTML = `
+                <label for="subjects[${subjectCount}].name">Subject Name:</label>
+                <input type="text" name="subjects[${subjectCount}].name" required>
+                <label for="subjects[${subjectCount}].grade">Grade:</label>
+                <input type="text" name="subjects[${subjectCount}].grade" required>
+            `;
+            document.getElementById('subjects').appendChild(subjectDiv);
+
+            // Update the subject count and store it in the hidden field
+            subjectCount++;
+            document.getElementById('subject-count').value = subjectCount;
+        });
+
+        document.getElementById('student-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Create an array of subject dictionaries
+            const subjects = [];
+            for (let i = 0; i < subjectCount; i++) {
+                subjects.push({
+                    name: document.querySelector(`input[name="subjects[${i}].name"]`).value,
+                    grade: document.querySelector(`input[name="subjects[${i}].grade"]`).value,
+                });
+            }
+
+            // Create the student data JSON object
+            const studentData = {
+                name: document.querySelector('input[name="name"]').value,
+                student_id: document.querySelector('input[name="student_id"]').value,
+                subjects,
+                cgpa: parseFloat(document.querySelector('input[name="cgpa"]').value),
+            };
+
+            // Log the data (you can send it to the server here)
+            console.log(studentData);
+            fetch('/grant', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(studentData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the response from the server if needed
+            console.log(data);
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+
+        // Create an object URL for the blob
+        const blobURL = URL.createObjectURL(blob);
+
+        // Create a temporary anchor element
+        const a = document.createElement('a');
+        a.href = blobURL;
+        a.download = `${studentData.student_id}_details.txt`;
+        a.style.display = 'none';
+
+        // Trigger a click event on the anchor element to initiate the download
+        document.body.appendChild(a);
+        a.click();
+
+        // Cleanup: Revoke the object URL and remove the anchor element
+        URL.revokeObjectURL(blobURL);
+        document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        });
+    </script>
+</body>
+</html>

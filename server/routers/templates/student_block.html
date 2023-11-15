@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Block Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        form {
+            background-color: #fff;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Block Details</h1>
+    <form id="encryption-form">
+        <label for="student_email">Student Email:</label>
+        <input type="text" name="student_email" required><br>
+        <label for="block_number">Block Number:</label>
+        <input type="number" name="block_number" required><br>
+
+        <h2>Encryption Details</h2>
+        <label for="passphrase">Passphrase:</label>
+        <input type="text" name="passphrase" required><br>
+        <label for="salt">Salt:</label>
+        <input type="text" name="salt" required><br>
+        <label for="nonce">Nonce:</label>
+        <input type="text" name="nonce" required><br>
+        <label for="tag">Tag:</label>
+        <input type="text" name="tag" required><br>
+
+        <input type="submit" value="Send">
+    </form>
+
+    <script>
+         document.getElementById('encryption-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get the form data
+            const formData = new FormData(document.getElementById('encryption-form'));
+
+            // Convert the form data to a JSON object
+            const json = {
+                block_number: parseInt(formData.get('block_number')),
+                student_email: formData.get('student_email'),
+                encryption_details: {
+                    passphrase: formData.get('passphrase'),
+                    salt: formData.get('salt'),
+                    nonce: formData.get('nonce'),
+                    tag: formData.get('tag'),
+                },
+            };
+            console.log(json)
+            // Send the JSON data to the server using an HTTP POST request
+            try {
+                const response = await fetch('/student/secure_send', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(json),
+                });
+
+                if (response.ok) {
+                    // Handle the response from the server if needed
+                    const result = await response.json();
+                    console.log('Encryption result:', result);
+                    alert("Details Successfully Sent")
+                } else {
+                    console.error('Error:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

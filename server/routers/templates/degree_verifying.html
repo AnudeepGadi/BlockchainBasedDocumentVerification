@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Records</title>
+    <style>
+                /* Add this CSS to your external stylesheet or within a <style> tag */
+        .truncate-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .truncate-table th, .truncate-table td {
+          border: 1px solid #ccc;
+          padding: 8px;
+          text-align: left;
+        }
+
+        .truncate-cell {
+          white-space: nowrap;         /* Prevent text from wrapping to the next line */
+          overflow: hidden;           /* Hide text that overflows the cell */
+          text-overflow: ellipsis;    /* Display an ellipsis (...) when text is truncated */
+          max-width: 25px;           /* Set a specific maximum width for the cell */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            background-color: #3498db;
+            color: #fff;
+            padding: 20px 0;
+        }
+
+        table {
+            max-width: 100%;
+            border-collapse: collapse;
+            overflow-x: auto; /* Add horizontal scrolling if needed */
+        }
+
+        th, td {
+            max-width: 16em; /* Set a maximum width for each cell */
+            padding: 10px;
+            border: 1px solid #ccc;
+            word-wrap: break-word; /* Allow text to wrap within cells */
+            white-space: normal;  /* Allow line breaks */
+        }
+
+        th {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        a {
+            text-decoration: none;
+            background-color: #2ecc71;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        a:hover {
+            background-color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+    <h1>Student Records</h1>
+    <table class="truncate-table">
+        <thead>
+            <tr>
+                <th>Student Email</th>
+                <th>Cipher Text</th>
+                <th>Salt</th>
+                <th>Nonce</th>
+                <th>Tag</th>
+                <th>Student Public Key</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td class="truncate-cell">{{ record.student_email }}</td>
+                <td class="truncate-cell">{{ record.cipher_text }}</td>
+                <td class="truncate-cell">{{ record.salt }}</td>
+                <td class="truncate-cell">{{ record.nonce }}</td>
+                <td class="truncate-cell">{{ record.tag }}</td>
+                <td class="truncate-cell">{{ record.student_public_key }}</td>
+                <td>
+                    <a href="/verify/download/{{ record.id }}">Download</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
